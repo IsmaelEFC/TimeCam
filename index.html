@@ -16,32 +16,18 @@
   <section id="captura">
     <div id="camera-wrapper">
       <video id="camera" autoplay playsinline></video>
-      <button id="capture-btn">📸 Capturar evidencia</button>
+      <button id="capture-btn">Capturar</button>
     </div>
     <canvas id="canvas-preview" style="display:none;"></canvas>
   </section>
-  
 
   <section id="historial" style="display:none;">
     <h2>Historial de capturas</h2>
     <div id="history-grid"></div>
   </section>
 
-  <div id="notification-container" class="notification-container"></div>
-  
-  <!-- Modal para ver la captura -->
-  <div id="image-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <img id="modal-image" src="" alt="Captura" style="max-width: 100%;">
-      <div class="modal-actions">
-        <button id="view-location" class="location-btn">Ver Ubicación</button>
-        <button id="close-modal" class="close-btn">Cerrar</button>
-      </div>
-    </div>
-  </div>
+  <div id="status-toast"></div>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="captura-db.js"></script>
   <script src="app.js"></script>
 </body>

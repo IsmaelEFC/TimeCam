@@ -4,6 +4,8 @@ const ctx = canvas.getContext('2d');
 const gallery = document.getElementById('history-grid');
 const toast = document.getElementById('status-toast');
 
+let coordenadas = null;
+
 // Activar cámara trasera
 navigator.mediaDevices.getUserMedia({
   video: { facingMode: { exact: "environment" } }
@@ -15,11 +17,30 @@ navigator.mediaDevices.getUserMedia({
   });
 });
 
-// Captura compuesta: cámara + hora oficial
+// Captura + coordenadas + hora oficial
 document.getElementById('capture-btn').addEventListener('click', () => {
+  navigator.geolocation.getCurrentPosition(pos => {
+    coordenadas = {
+      lat: pos.coords.latitude.toFixed(6),
+      lon: pos.coords.longitude.toFixed(6)
+    };
+    generarCaptura();
+  }, () => {
+    coordenadas = { lat: "?", lon: "?" };
+    generarCaptura();
+  });
+});
+
+function generarCaptura() {
   const horaOficial = new Date().toLocaleTimeString("es-CL", {
     timeZone: "America/Santiago",
     hour12: false
+  });
+  const fechaCompleta = new Date().toLocaleDateString("es-CL", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
   });
 
   canvas.width = window.innerWidth;
@@ -27,26 +48,57 @@ document.getElementById('capture-btn').addEventListener('click', () => {
 
   ctx.drawImage(camera, 0, 0, canvas.width, canvas.height * 0.6);
 
-  ctx.fillStyle = "#222";
+  ctx.fillStyle = "#1e1e1e";
   ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "20px Arial";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "18px 'Segoe UI'";
   ctx.fillText(`Hora oficial: ${horaOficial}`, 20, canvas.height * 0.65);
-  ctx.fillText(`Fuente: horaoficial.cl`, 20, canvas.height * 0.70);
-  ctx.fillText(`Fecha: ${new Date().toLocaleDateString("es-CL")}`, 20, canvas.height * 0.75);
+  ctx.fillText(`Fecha: ${fechaCompleta}`, 20, canvas.height * 0.70);
+  ctx.fillText(`Fuente: horaoficial.cl`, 20, canvas.height * 0.75);
+  ctx.fillText(`Ubicación: ${coordenadas.lat}, ${coordenadas.lon}`, 20, canvas.height * 0.80);
 
-  const imagenCompuesta = canvas.toDataURL("image/png");
+  const imagen = canvas.toDataURL("image/png");
 
-  const link = document.createElement("a");
-  link.href = imagenCompuesta;
-  link.download = `TimeCam_${Date.now()}.png`;
-  link.click();
+  const captura = {
+    timestamp: Date.now(),
+    coords: coordenadas,
+    src: imagen
+  };
 
-  mostrarEstado("success", "✅ Captura generada con hora oficial");
-});
+  guardarCaptura(captura);
+  mostrarEstado("success", "✅ Captura registrada");
+}
 
-// Pestañas
+// Guardado local (usando localStorage)
+function guardarCaptura(data) {
+  const prev = JSON.parse(localStorage.getItem("capturas") || "[]");
+  prev.push(data);
+  localStorage.setItem("capturas", JSON.stringify(prev));
+}
+
+// Galería
+function cargarHistorial() {
+  gallery.innerHTML = "";
+  const capturas = JSON.parse(localStorage.getItem("capturas") || "[]");
+  if (capturas.length === 0) {
+    mostrarEstado("info", "Aún no hay capturas.");
+    return;
+  }
+
+  capturas.reverse().forEach(captura => {
+    const img = document.createElement("img");
+    img.src = captura.src;
+    img.alt = "Captura";
+    img.title = `Tomada el ${new Date(captura.timestamp).toLocaleString("es-CL")}`;
+    img.onclick = () => {
+      window.open(`https://maps.google.com/?q=${captura.coords.lat},${captura.coords.lon}`, "_blank");
+    };
+    gallery.appendChild(img);
+  });
+}
+
+// Navegación
 function mostrarSeccion(id) {
   document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -55,7 +107,7 @@ function mostrarSeccion(id) {
   if (id === 'historial') cargarHistorial();
 }
 
-// Estado visual
+// Estado visual (toast)
 function mostrarEstado(tipo = "success", mensaje = "Operación exitosa") {
   toast.className = "";
   toast.classList.add(`toast-${tipo}`);
@@ -64,10 +116,4 @@ function mostrarEstado(tipo = "success", mensaje = "Operación exitosa") {
   setTimeout(() => {
     toast.style.opacity = "0";
   }, 2500);
-}
-
-// Historial (si decides añadir persistencia luego)
-function cargarHistorial() {
-  gallery.innerHTML = "";
-  mostrarEstado("info", "🗂️ Visualización de historial local no implementada aún.");
 }

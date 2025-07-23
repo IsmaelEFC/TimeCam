@@ -1,38 +1,43 @@
 # TimeCam
 
-**TimeCam** es una aplicación web progresiva (PWA) diseñada para capturar imágenes sincronizadas entre una cámara de seguridad y la hora oficial de Chile, permitiendo verificar discrepancias y registrar la ubicación geográfica de cada evidencia.
+**TimeCam** es una aplicación web progresiva (PWA) diseñada para capturar evidencia fotográfica con metadatos de tiempo y ubicación. La aplicación registra automáticamente la hora oficial de Chile y las coordenadas GPS en cada captura, creando un registro confiable para documentación técnica y legal.
 
 ---
 
 ## 📷 ¿Qué hace TimeCam?
 
-- Divide la pantalla en dos partes:  
-  - Cámara trasera del dispositivo móvil  
-  - Sitio web `horaoficial.cl` incrustado  
-- Captura ambas vistas en una sola imagen  
-- Registra automáticamente la ubicación GPS en el momento de la captura  
-- Guarda las imágenes en un historial local persistente  
-- Permite abrir cada captura en Google Maps para verificar ubicación  
+- Captura fotos con la cámara trasera del dispositivo móvil
+- Registra automáticamente la hora oficial de Chile (CLT/CLST)
+- Incluye coordenadas GPS en cada captura (si están disponibles)
+- Almacena un historial local de todas las capturas
+- Permite visualizar la ubicación en Google Maps
+- Interfaz limpia y fácil de usar
 
 ---
 
 ## 🚀 Características
 
-- Instalación como PWA en móviles Android  
-- Funciona offline tras la instalación  
-- Captura combinada (cámara + referencia web)  
-- Registro de ubicación geográfica con cada captura  
-- Historial con fecha, coordenadas y acceso a Google Maps  
-- Descarga automática de las imágenes capturadas  
-- Sistema de notificaciones intuitivo  
+- **Captura Inteligente**: Toma fotos con metadatos de tiempo y ubicación
+- **Hora Oficial**: Muestra la hora exacta según la hora oficial de Chile
+- **Geolocalización**: Registra automáticamente las coordenadas GPS
+- **Historial Local**: Almacena todas las capturas en el navegador
+- **Diseño Responsivo**: Se adapta a diferentes tamaños de pantalla
+- **Modo Claro/Oscuro**: Se ajusta automáticamente según la preferencia del sistema
+- **Sin Servidores**: Todo se procesa localmente en tu dispositivo
 
 ---
 
-## 📲 Cómo instalar
+## 📲 Cómo usar
 
-1. Abre el sitio en tu navegador móvil (Chrome, Edge, Brave)  
-2. Presiona "Agregar a pantalla de inicio" en el menú del navegador  
-3. Accede desde el ícono de TimeCam como una app independiente  
+1. Abre la aplicación en tu navegador móvil o instálala como PWA
+2. Otorga los permisos de cámara y ubicación cuando se soliciten
+3. Presiona el botón **Capturar evidencia** para tomar una foto
+4. La captura se guardará automáticamente con:
+   - Hora oficial de Chile
+   - Fecha completa
+   - Coordenadas GPS (si están disponibles)
+5. Revisa tus capturas en la pestaña de **Historial**
+6. Toca cualquier imagen para ver su ubicación en Google Maps
 
 ---
 
@@ -40,46 +45,36 @@
 
 ```
 TimeCam/
-├── index.html          # Punto de entrada de la aplicación
-├── style.css           # Estilos de la interfaz
-├── app.js              # Lógica principal
-├── captura-db.js       # Manejo de base de datos local
-├── icons/              # Iconos para PWA
-│   ├── icon-192x192.png
-│   └── icon-512x512.png
-├── manifest.json       # Configuración PWA
-├── service-worker.js   # Service Worker para funcionalidad offline
+├── index.html          # Interfaz de usuario principal
+├── style.css           # Estilos y diseño responsivo
+├── app.js              # Lógica principal de la aplicación
+├── captura-db.js       # Manejo del almacenamiento local
 └── README.md           # Documentación
 ```
 
 ## 🛠️ Requisitos
 
-- Navegador moderno con soporte para PWA  
-- Permisos de cámara y geolocalización  
-- Conexión HTTPS (automática si usas GitHub Pages)  
+- Navegador web moderno (Chrome, Edge, Firefox, Safari)
+- Dispositivo con cámara
+- Permisos de cámara y ubicación
+- Opcional: Instalación como PWA para mejor experiencia
 
 ---
 
-## ✨ Autor
+## ✨ Características Técnicas
 
-Creado por **IsmaelEFC**, apasionado por la eficiencia técnica, la automatización y el diseño accesible.  
-TimeCam forma parte de un ecosistema de herramientas modernas pensadas para facilitar tareas técnicas y documentar información crítica en campo.
+- **Almacenamiento**: Usa localStorage para guardar las capturas
+- **Rendimiento**: Optimizado para funcionar en dispositivos móviles
+- **Seguridad**: Todo el procesamiento se realiza localmente
+- **Offline**: Funciona sin conexión después de la instalación
 
 ---
 
 ## 🧭 Licencia
 
-Este proyecto puede ser reutilizado, adaptado y compartido libremente según tus necesidades.  
-¡Agradecimientos siempre son bienvenidos!
+Este proyecto es de código abierto y puede ser utilizado, modificado y compartido libremente según tus necesidades.
 
 ---
-
-## 🔄 Uso
-
-1. Abre la aplicación y otorga los permisos necesarios
-2. Presiona el botón de captura para tomar una foto
-3. La imagen se guardará automáticamente con la hora y ubicación
-4. Revisa tus capturas en la pestaña de Historial
 
 ## 🐛 Reportar problemas
 
