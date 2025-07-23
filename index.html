@@ -14,16 +14,13 @@
   </nav>
 
   <section id="captura">
-    <div id="split-view">
-      <div id="camera-wrapper">
-        <video id="camera" autoplay playsinline></video>
-        <button id="capture-btn">📸</button>
-      </div>
-      <div id="iframe-wrapper">
-        <iframe src="https://www.horaoficial.cl" id="iframe"></iframe>
-      </div>
+    <div id="camera-wrapper">
+      <video id="camera" autoplay playsinline></video>
+      <button id="capture-btn">📸 Capturar evidencia</button>
     </div>
+    <canvas id="canvas-preview" style="display:none;"></canvas>
   </section>
+  
 
   <section id="historial" style="display:none;">
     <h2>Historial de capturas</h2>

@@ -25,290 +25,83 @@ body {
     background: #0078d4;
   }
   
-  #split-view {
-    display: flex;
-    flex-direction: column;
-    height: 80vh;
-  }
-  
-  #camera-wrapper, #iframe-wrapper {
-    position: relative;
-    overflow: hidden;
-  }
-  
   #camera-wrapper {
-    height: 40vh;
-  }
-  
-  #iframe-wrapper {
-    height: 60vh;
+    position: relative;
+    height: 80vh;
+    overflow: hidden;
   }
   
   #camera {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     background: black;
-  }
-  
-  #iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
   }
   
   #capture-btn {
     position: absolute;
-    top: 10px;
-    right: 20px;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 10px 14px;
-    font-size: 20px;
+    font-size: 16px;
     background-color: rgba(0, 120, 212, 0.9);
     color: white;
     border: none;
     border-radius: 6px;
     z-index: 20;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s, background-color 0.2s;
   }
   
-  #capture-btn:active {
-    transform: scale(0.95);
-    background-color: rgba(0, 98, 177, 0.9);
+  #canvas-preview {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    border: 2px solid #0078d4;
+    border-radius: 8px;
   }
   
   #history-grid {
-    padding: 15px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    justify-content: center;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   
-  .history-item {
-    background: #222;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .history-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .history-image {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    display: block;
+  #history-grid img {
+    width: 120px;
     cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 4px;
   }
   
-  .history-timestamp {
-    padding: 8px;
-    font-size: 12px;
-    color: #aaa;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  #toast {
+  #status-toast {
     position: fixed;
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    background: #28a745;
-    color: white;
-    padding: 10px 18px;
+    min-width: 180px;
+    text-align: center;
+    padding: 10px 16px;
     border-radius: 6px;
     font-size: 14px;
     z-index: 999;
     opacity: 0;
     transition: opacity 0.4s ease;
+    pointer-events: none;
   }
   
-  /* Notification System */
-  .notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 350px;
-    width: 90%;
-  }
-
-  .notification {
-    position: relative;
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    color: white;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateX(120%);
-    animation: slideIn 0.3s forwards;
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-
-  .notification.success {
-    background-color: #28a745;
-    border-left: 5px solid #218838;
-  }
-
-  .notification.error {
-    background-color: #dc3545;
-    border-left: 5px solid #c82333;
-  }
-
-  .notification.warning {
-    background-color: #ffc107;
-    color: #212529;
-    border-left: 5px solid #e0a800;
-  }
-
-  .notification.info {
-    background-color: #17a2b8;
-    border-left: 5px solid #138496;
-  }
-
-  .notification-icon {
-    margin-right: 12px;
-    font-size: 1.5em;
-  }
-
-  .notification-close {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: inherit;
-    font-size: 1.2em;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-  }
-
-  .notification-close:hover {
-    opacity: 1;
-  }
-
-  @keyframes slideIn {
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .notification-slide-out {
-    animation: slideOut 0.3s forwards;
-  }
-
-  /* Modal Styles */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index: 1000;
-    overflow: auto;
-  }
-
-  .modal-content {
-    background: #222;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 90%;
-    width: 500px;
-    position: relative;
+  .toast-success {
+    background: #28a745;
     color: white;
   }
-
-  .close-modal {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close-modal:hover {
+  
+  .toast-error {
+    background: #d32f2f;
     color: white;
   }
-
-  .modal-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    gap: 10px;
+  
+  .toast-warning {
+    background: #f6c600;
+    color: black;
   }
-
-  .location-btn, .close-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .location-btn {
-    background-color: #0078d4;
-    color: white;
-  }
-
-  .location-btn:hover {
-    background-color: #0062b1;
-  }
-
-  .close-btn {
-    background-color: #444;
-    color: white;
-  }
-
-  .close-btn:hover {
-    background-color: #555;
-  }
-
-  /* Fix para la captura de pantalla */
-  #camera, #iframe {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  #camera-wrapper {
-    height: 40vh;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #iframe-wrapper {
-    height: 60vh;
-    position: relative;
-    overflow: hidden;
-  }
-
-  @keyframes slideOut {
-    to {
-      transform: translateX(120%);
-      opacity: 0;
-      margin-bottom: 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      height: 0;
-    }
-  }
+  
