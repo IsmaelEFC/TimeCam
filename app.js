@@ -92,8 +92,17 @@ function cargarHistorial() {
     img.alt = "Captura";
     img.title = `Tomada el ${new Date(captura.timestamp).toLocaleString("es-CL")}`;
     img.onclick = () => {
-      window.open(`https://maps.google.com/?q=${captura.coords.lat},${captura.coords.lon}`, "_blank");
-    };
+        document.getElementById("visor-img").src = captura.src;
+        document.getElementById("visor-info").textContent = `
+          Fecha: ${new Date(captura.timestamp).toLocaleString("es-CL")}
+          Ubicación: ${captura.coords.lat}, ${captura.coords.lon}
+        `;
+        document.getElementById("maps-btn").onclick = () => {
+          window.open(`https://maps.google.com/?q=${captura.coords.lat},${captura.coords.lon}`, "_blank");
+        };
+        document.getElementById("visor-modal").style.display = "flex";
+      };
+      
     gallery.appendChild(img);
   });
 }
@@ -117,3 +126,7 @@ function mostrarEstado(tipo = "success", mensaje = "Operación exitosa") {
     toast.style.opacity = "0";
   }, 2500);
 }
+document.getElementById("cerrar-visor").onclick = () => {
+    document.getElementById("visor-modal").style.display = "none";
+  };
+  

@@ -152,3 +152,49 @@
     color: white;
   }
   
+  #visor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  #visor-contenido {
+    background: #222;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 90%;
+  }
+  
+  #visor-img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  #maps-btn, #cerrar-visor {
+    margin: 5px;
+    padding: 8px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  #maps-btn {
+    background: #0078d4;
+    color: white;
+  }
+  
+  #cerrar-visor {
+    background: #444;
+    color: white;
+  }
+  

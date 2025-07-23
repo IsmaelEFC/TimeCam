@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
-  <title>TimeCam</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css" />
+    <title>TimeCam</title>
 </head>
+
 <body>
-  <nav id="tab-menu">
-    <button class="tab active" onclick="mostrarSeccion('captura')">📷 Captura</button>
-    <button class="tab" onclick="mostrarSeccion('historial')">🗂️ Historial</button>
-  </nav>
+    <nav id="tab-menu">
+        <button class="tab active" onclick="mostrarSeccion('captura')">📷 Captura</button>
+        <button class="tab" onclick="mostrarSeccion('historial')">🗂️ Historial</button>
+    </nav>
 
-  <section id="captura">
-    <div id="camera-wrapper">
-      <video id="camera" autoplay playsinline></video>
-      <button id="capture-btn">Capturar</button>
+    <section id="captura">
+        <div id="camera-wrapper">
+            <video id="camera" autoplay playsinline></video>
+            <button id="capture-btn">Capturar</button>
+        </div>
+        <canvas id="canvas-preview" style="display:none;"></canvas>
+    </section>
+
+    <section id="historial" style="display:none;">
+        <h2>Historial de capturas</h2>
+        <div id="history-grid"></div>
+    </section>
+
+    <div id="status-toast" role="status" aria-live="polite"></div>
+
+    <div id="visor-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display: none;">
+        <div id="visor-contenido">
+            <button id="cerrar-visor" aria-label="Cerrar modal">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h2 id="modal-title" class="visually-hidden">Detalles de la captura</h2>
+            <div class="image-container">
+                <img id="visor-img" src="" alt="Captura ampliada" />
+                <div id="visor-info" class="image-info"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="maps-btn" class="btn-primary">
+                    <span class="btn-icon">📍</span> Ver en Google Maps
+                </button>
+                <button id="descargar-img" class="btn-secondary">
+                    <span class="btn-icon">⬇️</span> Descargar
+                </button>
+            </div>
+        </div>
     </div>
-    <canvas id="canvas-preview" style="display:none;"></canvas>
-  </section>
 
-  <section id="historial" style="display:none;">
-    <h2>Historial de capturas</h2>
-    <div id="history-grid"></div>
-  </section>
+    <script src="captura-db.js"></script>
+    <script src="app.js"></script>
 
-  <div id="status-toast"></div>
-
-  <script src="captura-db.js"></script>
-  <script src="app.js"></script>
 </body>
+
 </html>
