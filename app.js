@@ -6,16 +6,59 @@ const toast = document.getElementById('status-toast');
 
 let coordenadas = null;
 
-// Activar cámara trasera
-navigator.mediaDevices.getUserMedia({
-  video: { facingMode: { exact: "environment" } }
-}).then(stream => {
-  camera.srcObject = stream;
-}).catch(() => {
-  navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-    camera.srcObject = stream;
-  });
-});
+// Inicializar cámara
+let cameraStream = null;
+
+// Función para iniciar la cámara
+async function iniciarCamara() {
+  try {
+    // Detener la cámara actual si existe
+    await detenerCamara();
+    
+    // Intentar con cámara trasera primero
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: "environment" } },
+        audio: false
+      });
+    } catch (e) {
+      // Si falla, intentar con cualquier cámara
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      });
+    }
+    
+    if (camera) {
+      camera.srcObject = cameraStream;
+      // Esperar a que la cámara esté lista
+      return new Promise((resolve) => {
+        camera.onloadedmetadata = () => {
+          camera.play().then(resolve).catch(console.error);
+        };
+      });
+    }
+  } catch (err) {
+    console.error("Error al acceder a la cámara:", err);
+    mostrarEstado("error", "No se pudo acceder a la cámara");
+    return Promise.reject(err);
+  }
+}
+
+// Función para detener la cámara
+async function detenerCamara() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  if (camera) {
+    camera.srcObject = null;
+  }
+  return Promise.resolve();
+}
+
+// Iniciar cámara al cargar la página
+iniciarCamara().catch(console.error);
 
 // Captura + coordenadas + hora oficial
 document.getElementById('capture-btn').addEventListener('click', () => {
@@ -77,61 +120,105 @@ function guardarCaptura(data) {
   localStorage.setItem("capturas", JSON.stringify(prev));
 }
 
-// Galería
-function cargarHistorial() {
+// Obtener historial de capturas
+function obtenerHistorial() {
   try {
-    gallery.innerHTML = "";
-    const capturas = JSON.parse(localStorage.getItem("capturas") || "[]");
-    
-    if (capturas.length === 0) {
-      mostrarEstado("info", "Aún no hay capturas.");
-      return;
-    }
-
-    capturas.reverse().forEach((captura, index) => {
-      const figure = document.createElement("figure");
-      figure.className = "gallery-item";
-      
-      const img = document.createElement("img");
-      img.src = captura.src;
-      img.alt = `Captura tomada el ${new Date(captura.timestamp).toLocaleString("es-CL")}`;
-      img.loading = "lazy";
-      img.className = "gallery-image";
-      
-      const figcaption = document.createElement("figcaption");
-      figcaption.className = "visually-hidden";
-      figcaption.textContent = `Captura tomada el ${new Date(captura.timestamp).toLocaleString("es-CL")}`;
-      
-      // Configurar manejador de clic mejorado
-      setupGalleryImageClickHandler(img, captura);
-      
-      // Hacer la imagen enfocable para navegación por teclado
-      img.tabIndex = 0;
-      img.setAttribute("role", "button");
-      img.setAttribute("aria-label", `Ver captura tomada el ${new Date(captura.timestamp).toLocaleString("es-CL")}`);
-      
-      // Permitir abrir con la tecla Enter
-      img.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setupGalleryImageClickHandler(img, captura)();
-        }
-      });
-      
-      figure.appendChild(img);
-      figure.appendChild(figcaption);
-      gallery.appendChild(figure);
-    });
-    
-    // Enfocar la primera imagen después de cargar
-    const firstImage = gallery.querySelector("img");
-    if (firstImage) {
-      firstImage.focus();
-    }
-    
+    return JSON.parse(localStorage.getItem("capturas") || "[]");
   } catch (error) {
-    console.error("Error al cargar el historial:", error);
-    mostrarEstado("error", "Error al cargar el historial de capturas.");
+    console.error("Error al obtener el historial:", error);
+    return [];
+  }
+}
+
+// Cargar y mostrar el historial en la galería
+function cargarHistorial() {
+  const historial = obtenerHistorial();
+  const grid = document.getElementById("history-grid");
+  
+  if (!grid) return;
+  
+  if (!historial || historial.length === 0) {
+    grid.innerHTML = '<p class="no-data">No hay capturas guardadas</p>';
+    return;
+  }
+  
+  grid.innerHTML = '';
+  
+  // Mostrar en orden cronológico inverso (más recientes primero)
+  historial.reverse().forEach((captura) => {
+    // Crear contenedor para la imagen y el botón
+    const itemContainer = document.createElement('div');
+    itemContainer.className = 'gallery-item';
+    itemContainer.dataset.timestamp = captura.timestamp;
+    
+    // Crear imagen
+    const img = document.createElement('img');
+    img.src = captura.src;
+    img.alt = `Captura del ${new Date(captura.timestamp).toLocaleString("es-CL")}`;
+    img.loading = 'lazy';
+    img.className = 'gallery-image';
+    img.tabIndex = 0;
+    
+    // Crear botón de eliminar
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.innerHTML = '🗑️';
+    deleteBtn.title = 'Eliminar esta captura';
+    deleteBtn.setAttribute('aria-label', `Eliminar captura del ${new Date(captura.timestamp).toLocaleString("es-CL")}`);
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      eliminarCaptura(captura.timestamp);
+    };
+    
+    // Agregar elementos al contenedor
+    itemContainer.appendChild(img);
+    itemContainer.appendChild(deleteBtn);
+    
+    // Configurar el manejador de clic para la imagen
+    setupGalleryImageClickHandler(itemContainer, captura);
+    
+    // Agregar el contenedor al grid
+    grid.appendChild(itemContainer);
+  });
+}
+
+// Función para eliminar una captura
+function eliminarCaptura(timestamp) {
+  if (!confirm('¿Estás seguro de que deseas eliminar esta captura?')) {
+    return;
+  }
+  
+  try {
+    let historial = obtenerHistorial();
+    historial = historial.filter(item => item.timestamp !== timestamp);
+    localStorage.setItem('capturas', JSON.stringify(historial));
+    
+    // Eliminar el elemento del DOM
+    const itemToRemove = document.querySelector(`.gallery-item[data-timestamp="${timestamp}"]`);
+    if (itemToRemove) {
+      // Agregar animación de salida
+      itemToRemove.style.transform = 'scale(0.8)';
+      itemToRemove.style.opacity = '0';
+      
+      // Esperar a que termine la animación antes de eliminar
+      setTimeout(() => {
+        itemToRemove.remove();
+        
+        // Verificar si no quedan más elementos
+        const grid = document.getElementById("history-grid");
+        if (grid && grid.children.length === 0) {
+          grid.innerHTML = '<p class="no-data">No hay capturas guardadas</p>';
+        }
+      }, 300);
+    }
+    
+    mostrarEstado("success", "Captura eliminada correctamente");
+    
+    // Recargar el historial después de eliminar
+    cargarHistorial();
+  } catch (error) {
+    console.error("Error al eliminar la captura:", error);
+    mostrarEstado("error", "Error al eliminar la captura");
   }
 }
 
@@ -190,6 +277,15 @@ function mostrarSeccion(id) {
   
   // Mostrar la nueva sección
   if (seccionNueva) {
+    // Manejar la cámara según la sección a la que se está cambiando
+    if (id === 'captura') {
+      // Iniciar la cámara cuando volvemos a la vista de captura
+      iniciarCamara().catch(console.error);
+    } else if (id === 'historial') {
+      // Detener la cámara cuando vamos al historial para ahorrar recursos
+      detenerCamara().catch(console.error);
+    }
+    
     seccionNueva.style.display = 'block';
     seccionNueva.style.visibility = 'visible';
     seccionNueva.setAttribute('aria-hidden', 'false');
