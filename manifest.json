@@ -1,0 +1,22 @@
+{
+    "name": "CapturaSync",
+    "short_name": "CapturaSync",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#111111",
+    "theme_color": "#0078d4",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "icons/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "icons/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ]
+  }
+  

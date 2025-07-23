@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+  }
+  
+  #split-view {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+  }
+  
+  #camera {
+    flex: 1;
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  #iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+  }
+  
+  #capture-btn {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  #gallery {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #gallery img {
+    width: 100px;
+    cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 4px;
+  }
+  
