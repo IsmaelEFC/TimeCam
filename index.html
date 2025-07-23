@@ -8,13 +8,25 @@
   <title>CapturaSync</title>
 </head>
 <body>
-  <div id="split-view">
-    <video id="camera" autoplay playsinline></video>
-    <iframe src="https://www.horaoficial.cl" id="iframe"></iframe>
-  </div>
-  <button id="capture-btn">📸 Capturar</button>
-  <div id="gallery"></div>
+  <nav id="tab-menu">
+    <button class="tab active" onclick="mostrarSeccion('captura')">📷 Captura</button>
+    <button class="tab" onclick="mostrarSeccion('historial')">🗂️ Historial</button>
+  </nav>
 
+  <section id="captura">
+    <div id="split-view">
+      <video id="camera" autoplay playsinline></video>
+      <iframe src="https://www.horaoficial.cl" id="iframe"></iframe>
+    </div>
+    <button id="capture-btn">📸 Capturar</button>
+  </section>
+
+  <section id="historial" style="display:none;">
+    <h2>Historial de capturas</h2>
+    <div id="history-grid"></div>
+  </section>
+
+  <script src="captura-db.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -5,6 +5,26 @@ body {
     color: white;
   }
   
+  #tab-menu {
+    display: flex;
+    justify-content: center;
+    background: #222;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 10px;
+    background: #333;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .tab.active {
+    background: #0078d4;
+  }
+  
   #split-view {
     display: flex;
     flex-direction: column;
@@ -12,13 +32,13 @@ body {
   }
   
   #camera {
-    flex: 1;
+    flex: 2;
     width: 100%;
     object-fit: cover;
   }
   
   #iframe {
-    flex: 1;
+    flex: 3;
     width: 100%;
     border: none;
   }
@@ -33,16 +53,17 @@ body {
     color: white;
     border: none;
     border-radius: 5px;
+    z-index: 10;
   }
   
-  #gallery {
+  #history-grid {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
   }
-  #gallery img {
-    width: 100px;
+  #history-grid img {
+    width: 120px;
     cursor: pointer;
     border: 2px solid #333;
     border-radius: 4px;

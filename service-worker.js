@@ -6,6 +6,7 @@ self.addEventListener('install', e => {
           './index.html',
           './style.css',
           './app.js',
+          './captura-db.js',
           './manifest.json'
         ])
       )
