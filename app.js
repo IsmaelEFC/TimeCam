@@ -136,6 +136,30 @@ function cargarHistorial() {
 }
 
 // Navegación mejorada con accesibilidad
+document.addEventListener('DOMContentLoaded', () => {
+  // Asegurarse de que solo una vista esté visible al cargar
+  const vistas = document.querySelectorAll('.vista');
+  const hash = window.location.hash.substring(1);
+  const initialSection = ['captura', 'historial'].includes(hash) ? hash : 'captura';
+  
+  // Ocultar todas las vistas excepto la inicial
+  vistas.forEach(vista => {
+    if (vista.id === initialSection) {
+      vista.style.display = 'block';
+      vista.style.opacity = '1';
+      vista.style.visibility = 'visible';
+      vista.classList.add('visible');
+      vista.setAttribute('aria-hidden', 'false');
+    } else {
+      vista.style.display = 'none';
+      vista.style.opacity = '0';
+      vista.style.visibility = 'hidden';
+      vista.classList.remove('visible');
+      vista.setAttribute('aria-hidden', 'true');
+    }
+  });
+});
+
 function mostrarSeccion(id) {
   // Validar ID de sección
   const validSections = ['captura', 'historial'];
@@ -144,22 +168,46 @@ function mostrarSeccion(id) {
     return;
   }
 
-  // Ocultar todas las secciones
-  const vistas = document.querySelectorAll('.vista');
-  vistas.forEach(sec => {
-    sec.classList.remove('visible');
-    sec.setAttribute('aria-hidden', 'true');
-  });
+  // Obtener la sección actual y la nueva
+  const seccionActual = document.querySelector('.vista.visible');
+  const seccionNueva = document.getElementById(id);
   
-  // Mostrar la sección seleccionada
-  const seccionActiva = document.getElementById(id);
-  if (seccionActiva) {
-    seccionActiva.classList.add('visible');
-    seccionActiva.setAttribute('aria-hidden', 'false');
+  // Si ya está en la sección solicitada, no hacer nada
+  if (seccionActual === seccionNueva) return;
+  
+  // Configurar la transición
+  if (seccionActual) {
+    seccionActual.style.opacity = '0';
+    seccionActual.classList.remove('visible');
+    seccionActual.setAttribute('aria-hidden', 'true');
     
-    // Hacer que la sección sea enfocable para lectores de pantalla
-    seccionActiva.setAttribute('tabindex', '-1');
-    seccionActiva.focus({ preventScroll: true });
+    // Ocultar completamente después de la animación
+    setTimeout(() => {
+      seccionActual.style.display = 'none';
+      seccionActual.style.visibility = 'hidden';
+    }, 300); // Coincidir con la duración de la transición CSS
+  }
+  
+  // Mostrar la nueva sección
+  if (seccionNueva) {
+    seccionNueva.style.display = 'block';
+    seccionNueva.style.visibility = 'visible';
+    seccionNueva.setAttribute('aria-hidden', 'false');
+    
+    // Forzar el reflow para que la animación funcione
+    void seccionNueva.offsetHeight;
+    
+    // Iniciar la animación de entrada
+    setTimeout(() => {
+      seccionNueva.style.opacity = '1';
+      seccionNueva.classList.add('visible');
+      
+      // Enfocar el primer elemento interactivo
+      const focusable = seccionNueva.querySelector('button, [href], [tabindex]:not([tabindex="-1"])');
+      if (focusable) {
+        focusable.focus({ preventScroll: true });
+      }
+    }, 10);
   }
   
   // Actualizar pestañas
@@ -185,14 +233,6 @@ function mostrarSeccion(id) {
   // Cargar historial si es necesario
   if (id === 'historial') {
     cargarHistorial();
-  } else {
-    // Enfocar el botón de captura si estamos en la sección de captura
-    const captureBtn = document.getElementById('capture-btn');
-    if (id === 'captura' && captureBtn) {
-      setTimeout(() => {
-        captureBtn.focus({ preventScroll: true });
-      }, 100);
-    }
   }
   
   // Actualizar la URL sin recargar la página
@@ -280,7 +320,9 @@ function mostrarEstado(tipo = "success", mensaje = "Operación exitosa") {
 const modal = document.getElementById("visor-modal");
 const modalContent = document.getElementById("visor-contenido");
 const closeButton = document.getElementById("cerrar-visor");
+const downloadButton = document.getElementById("descargar-img");
 let lastFocusedElement = null;
+let currentImageSrc = '';
 
 // Cerrar modal
 function closeModal() {
@@ -327,11 +369,42 @@ function handleOutsideClick(e) {
 // Configurar manejadores de eventos del modal
 closeButton.addEventListener('click', closeModal);
 
+// Función para descargar la imagen actual
+function downloadImage() {
+  if (!currentImageSrc) return;
+  
+  try {
+    const link = document.createElement('a');
+    link.href = currentImageSrc;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.download = `timecam-${timestamp}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    mostrarEstado("success", "✅ Imagen descargada");
+  } catch (error) {
+    console.error("Error al descargar la imagen:", error);
+    mostrarEstado("error", "Error al descargar la imagen");
+  }
+}
+
 // Función para abrir el modal
 function openModal() {
   lastFocusedElement = document.activeElement;
+  
+  // Forzar el renderizado antes de mostrar para la animación
   modal.style.display = "flex";
+  // Pequeño retraso para asegurar que el navegador procese el cambio de display
+  requestAnimationFrame(() => {
+    modal.style.opacity = "1";
+  });
+  
   document.body.style.overflow = "hidden";
+  
+  // Configurar el botón de descarga
+  if (downloadButton) {
+    downloadButton.onclick = downloadImage;
+  }
   
   // Enfocar el primer elemento interactivo
   closeButton.focus();
@@ -344,17 +417,22 @@ function openModal() {
 // Actualizar el manejador de clic en las imágenes de la galería
 function setupGalleryImageClickHandler(img, captura) {
   img.onclick = () => {
-    document.getElementById("visor-img").src = captura.src;
+    const visorImg = document.getElementById("visor-img");
+    visorImg.src = captura.src;
+    currentImageSrc = captura.src; // Guardar la fuente de la imagen actual
+    
     document.getElementById("visor-info").textContent = `
       Fecha: ${new Date(captura.timestamp).toLocaleString("es-CL")}
       Ubicación: ${captura.coords.lat}, ${captura.coords.lon}
     `;
     
     const mapsButton = document.getElementById("maps-btn");
-    mapsButton.onclick = (e) => {
-      e.stopPropagation();
-      window.open(`https://maps.google.com/?q=${captura.coords.lat},${captura.coords.lon}`, "_blank");
-    };
+    if (mapsButton) {
+      mapsButton.onclick = (e) => {
+        e.stopPropagation();
+        window.open(`https://maps.google.com/?q=${captura.coords.lat},${captura.coords.lon}`, "_blank");
+      };
+    }
     
     openModal();
   };
