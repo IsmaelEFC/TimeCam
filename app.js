@@ -75,16 +75,17 @@ navigator.mediaDevices.getUserMedia({
   });
 });
 
-document.getElementById('capture-btn').addEventListener('click', () => {
-  navigator.geolocation.getCurrentPosition(pos => {
-    const { latitude, longitude } = pos.coords;
-
-    // Crear un canvas temporal para la cámara
-    const cameraCanvas = document.createElement('canvas');
-    cameraCanvas.width = camera.videoWidth;
-    cameraCanvas.height = camera.videoHeight;
-    const cameraCtx = cameraCanvas.getContext('2d');
-    cameraCtx.drawImage(camera, 0, 0, cameraCanvas.width, cameraCanvas.height);
+// Función mejorada para capturar la pantalla
+document.getElementById('capture-btn').addEventListener('click', async () => {
+  const loadingNotification = NotificationSystem.info('Procesando captura...', 0);
+  
+  try {
+    // Obtener ubicación
+    const position = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+    
+    const { latitude, longitude } = position.coords;
     
     // Crear el canvas final
     const canvas = document.createElement('canvas');
@@ -92,69 +93,132 @@ document.getElementById('capture-btn').addEventListener('click', () => {
     canvas.height = window.innerHeight;
     const ctx = canvas.getContext('2d');
     
-    // Dibujar la cámara (40% superior)
-    const cameraAspect = cameraCanvas.width / cameraCanvas.height;
-    const cameraHeight = canvas.width / cameraAspect;
-    ctx.drawImage(cameraCanvas, 0, 0, canvas.width, canvas.height * 0.4);
+    // Dibujar fondo negro
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Dibujar el iframe (60% inferior)
-    const iframeCanvas = document.createElement('canvas');
-    iframeCanvas.width = canvas.width;
-    iframeCanvas.height = canvas.height * 0.6;
-    const iframeCtx = iframeCanvas.getContext('2d');
+    // 1. Capturar la cámara (40% superior)
+    const cameraAspect = camera.videoWidth / camera.videoHeight;
+    const cameraTargetHeight = canvas.height * 0.4;
+    const cameraTargetWidth = cameraTargetHeight * cameraAspect;
+    const cameraX = (canvas.width - cameraTargetWidth) / 2;
     
-    // Usamos html2canvas para capturar el iframe
-    html2canvas(document.querySelector('iframe')).then(iframeScreenshot => {
-      // Dibujar el fondo oscuro
-      ctx.fillStyle = "#222";
-      ctx.fillRect(0, canvas.height * 0.4, canvas.width, canvas.height * 0.6);
+    // Dibujar la cámara
+    ctx.drawImage(camera, cameraX, 0, cameraTargetWidth, cameraTargetHeight);
+    
+    // 2. Manejar la captura del iframe (60% inferior)
+    const iframe = document.querySelector('iframe');
+    const iframeX = 0;
+    const iframeY = cameraTargetHeight;
+    const iframeWidth = canvas.width;
+    const iframeHeight = canvas.height - cameraTargetHeight;
+    
+    // Dibujar un marcador de posición para el iframe
+    ctx.fillStyle = '#222';
+    ctx.fillRect(iframeX, iframeY, iframeWidth, iframeHeight);
+    
+    try {
+      // Intentar capturar el iframe directamente con html2canvas
+      const iframeCanvas = await html2canvas(iframe, {
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#222'
+      });
       
-      // Dibujar el iframe capturado
-      ctx.drawImage(iframeScreenshot, 0, canvas.height * 0.4, canvas.width, canvas.height * 0.6);
+      // Dibujar la captura del iframe
+      ctx.drawImage(iframeCanvas, iframeX, iframeY, iframeWidth, iframeHeight);
+    } catch (error) {
+      console.warn('No se pudo capturar el iframe, mostrando mensaje de error', error);
       
-      // Añadir texto descriptivo
-      ctx.fillStyle = "#fff";
-      ctx.font = "16px Arial";
-      ctx.fillText(`Capturado el: ${new Date().toLocaleString()}`, 20, canvas.height * 0.42 + 25);
-      ctx.fillText(`Ubicación: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`, 20, canvas.height * 0.42 + 50);
+      // Mostrar mensaje de error en la captura
+      ctx.fillStyle = '#333';
+      ctx.fillRect(iframeX, iframeY, iframeWidth, iframeHeight);
       
-      // Continuar con el proceso de guardado
-      const imgData = canvas.toDataURL('image/png');
+      ctx.fillStyle = '#fff';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
       
+      // Mensaje dividido en líneas
+      const messages = [
+        'No se pudo cargar la vista previa de la página web',
+        'pero la captura se guardó correctamente.'
+      ];
+      
+      messages.forEach((msg, i) => {
+        ctx.fillText(msg, canvas.width / 2, iframeY + (i + 1) * 30);
+      });
+    }
+    
+    // Añadir información de la captura
+    const infoHeight = 60;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, iframeY, canvas.width, infoHeight);
+    
+    // Texto informativo
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'left';
+    
+    // Fecha y hora
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const timeStr = now.toLocaleTimeString();
+    
+    // Coordenadas formateadas
+    const formatCoord = (coord) => {
+      const absCoord = Math.abs(coord);
+      const degrees = Math.floor(absCoord);
+      const minutesNotTruncated = (absCoord - degrees) * 60;
+      const minutes = Math.floor(minutesNotTruncated);
+      const seconds = Math.floor((minutesNotTruncated - minutes) * 60);
+      return `${degrees}°${minutes}'${seconds}" ${coord >= 0 ? 'N' : 'S'}`;
+    };
+    
+    const latStr = formatCoord(latitude);
+    const lngStr = formatCoord(longitude);
+    
+    // Dibujar información
+    ctx.fillText(`Capturado: ${dateStr} ${timeStr}`, 10, iframeY + 20);
+    ctx.fillText(`Ubicación: ${latStr}, ${lngStr}`, 10, iframeY + 40);
+    
+    // Convertir a imagen
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Guardar en la base de datos
+    await new Promise((resolve) => {
       guardarCaptura({
         id: Date.now(),
         imagen: imgData,
-        fecha: new Date().toISOString(),
+        fecha: now.toISOString(),
         coords: { lat: latitude, lon: longitude }
       });
-
-      const a = document.createElement('a');
-      a.href = imgData;
-      a.download = `captura_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
-      a.click();
-      NotificationSystem.success('Captura guardada correctamente');
+      setTimeout(resolve, 100); // Pequeña pausa para asegurar el guardado
     });
     
-    return; // Salir temprano ya que el guardado se maneja en la promesa
-
-    const imgData = canvas.toDataURL('image/png');
-
-    guardarCaptura({
-      id: Date.now(),
-      imagen: imgData,
-      fecha: new Date().toISOString(),
-      coords: { lat: latitude, lon: longitude }
-    });
-
+    // Descargar automáticamente
     const a = document.createElement('a');
     a.href = imgData;
-    a.download = `captura_${Date.now()}.png`;
+    a.download = `captura_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}.png`;
     a.click();
+    
+    // Cerrar notificación de carga
+    NotificationSystem.remove(loadingNotification);
     NotificationSystem.success('Captura guardada correctamente');
-  }, (error) => {
-    console.error('Error al obtener la ubicación:', error);
-    NotificationSystem.error('No se pudo obtener la ubicación. Asegúrate de tener activado el GPS.');
-  });
+    
+  } catch (error) {
+    console.error('Error en la captura:', error);
+    
+    // Cerrar notificación de carga
+    NotificationSystem.remove(loadingNotification);
+    
+    if (error.code === error.PERMISSION_DENIED) {
+      NotificationSystem.error('Se necesita permiso de ubicación para guardar la captura');
+    } else {
+      NotificationSystem.error('Error al procesar la captura: ' + error.message);
+    }
+  }
 });
 
 function mostrarSeccion(id) {
