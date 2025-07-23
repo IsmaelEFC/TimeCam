@@ -1,8 +1,68 @@
 const camera = document.getElementById('camera');
 const iframe = document.getElementById('iframe');
 const gallery = document.getElementById('history-grid');
+const notificationContainer = document.getElementById('notification-container');
 
+// Initialize database
 abrirDB();
+
+// Notification system
+class NotificationSystem {
+  static show({ message, type = 'info', duration = 5000 }) {
+    const icons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ'
+    };
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    notification.innerHTML = `
+      <span class="notification-icon">${icons[type] || icons.info}</span>
+      <div class="notification-content">${message}</div>
+      <button class="notification-close">&times;</button>
+    `;
+
+    const closeButton = notification.querySelector('.notification-close');
+    closeButton.addEventListener('click', () => this.remove(notification));
+
+    notificationContainer.appendChild(notification);
+
+    // Auto-remove notification after duration
+    if (duration > 0) {
+      setTimeout(() => this.remove(notification), duration);
+    }
+
+    return notification;
+  }
+
+  static remove(notification) {
+    if (notification) {
+      notification.classList.add('notification-slide-out');
+      notification.addEventListener('animationend', () => {
+        notification.remove();
+      });
+    }
+  }
+
+  static success(message, duration = 5000) {
+    return this.show({ message, type: 'success', duration });
+  }
+
+  static error(message, duration = 5000) {
+    return this.show({ message, type: 'error', duration });
+  }
+
+  static warning(message, duration = 5000) {
+    return this.show({ message, type: 'warning', duration });
+  }
+
+  static info(message, duration = 3000) {
+    return this.show({ message, type: 'info', duration });
+  }
+}
 
 // Usar cámara trasera
 navigator.mediaDevices.getUserMedia({
@@ -44,7 +104,10 @@ document.getElementById('capture-btn').addEventListener('click', () => {
     a.href = imgData;
     a.download = `captura_${Date.now()}.png`;
     a.click();
-    alert("✅ Captura guardada y descargada");
+    NotificationSystem.success('Captura guardada correctamente');
+  }, (error) => {
+    console.error('Error al obtener la ubicación:', error);
+    NotificationSystem.error('No se pudo obtener la ubicación. Asegúrate de tener activado el GPS.');
   });
 });
 
@@ -69,5 +132,14 @@ function cargarHistorial() {
       };
       gallery.appendChild(img);
     });
+  });
+}
+
+// Show toast notification (kept for backward compatibility)
+function mostrarToast(mensaje = "✅ Captura guardada") {
+  NotificationSystem.show({
+    message: mensaje,
+    type: mensaje.includes('✅') ? 'success' : 'info',
+    duration: 2000
   });
 }

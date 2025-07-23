@@ -1,26 +1,53 @@
 # TimeCam
 
-**TimeCam** es una aplicación web progresiva (PWA) que permite capturar evidencias sincronizadas de horarios, combinando la imagen de una cámara de seguridad con la hora oficial de Chile, más la ubicación geográfica donde se realiza la captura.
+**TimeCam** es una aplicación web progresiva (PWA) diseñada para capturar imágenes sincronizadas entre una cámara de seguridad y la hora oficial de Chile, permitiendo verificar discrepancias y registrar la ubicación geográfica de cada evidencia.
 
-## 🧠 ¿Cómo funciona?
+---
 
-- 📷 Divide la pantalla en dos: cámara trasera + sitio `horaoficial.cl`.
-- 🕒 Permite capturar ambas partes en una sola imagen, contrastando los horarios visualmente.
-- 🌎 Registra automáticamente la ubicación GPS de la captura.
-- 🗂️ Guarda cada imagen en un historial local dentro de la app.
-- 📍 Al tocar una imagen guardada, puedes abrir la ubicación exacta en Google Maps.
+## 📷 ¿Qué hace TimeCam?
+
+- Divide la pantalla en dos partes:  
+  ▸ Cámara trasera del dispositivo móvil  
+  ▸ Sitio web `horaoficial.cl` incrustado  
+- Captura ambas vistas en una sola imagen  
+- Registra automáticamente la ubicación GPS en el momento de la captura  
+- Guarda las imágenes en un historial local persistente  
+- Permite abrir cada captura en Google Maps para verificar ubicación  
+
+---
 
 ## 🚀 Características
 
-- ✅ Funciona completamente offline después de instalarse.
-- 📁 Galería persistente usando IndexedDB.
-- 📌 Instalación como app en Android (PWA).
-- 🔐 Capturas guardadas localmente, sin necesidad de servidor externo.
-- 🗺️ Integración con Google Maps para visualización de ubicación.
+- Instalación como PWA en móviles Android  
+- Funciona offline tras la instalación  
+- Captura combinada (cámara + referencia web)  
+- Registro de ubicación geográfica con cada captura  
+- Historial con fecha, coordenadas y acceso a Google Maps  
+- Descarga automática de las imágenes capturadas  
 
-## 📦 Estructura del proyecto
-. ├── index.html ├── style.css ├── app.js ├── captura-db.js ├── manifest.json ├── service-worker.js └── icons/ ├── icon-192x192.png └── icon-512x512.png
+---
 
+## 📲 Cómo instalar
+
+1. Abre el sitio en tu navegador móvil (Chrome, Edge, Brave).  
+2. Presiona “Agregar a pantalla de inicio” en el menú del navegador.  
+3. Accede desde el ícono de TimeCam como una app independiente.  
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+TimeCam/
+├── index.html
+├── style.css
+├── app.js
+├── captura-db.js
+├── icons/
+│   ├── icon-192x192.png
+│   └── icon-512x512.png
+├── manifest.json
+└── README.md
 
 ---
 

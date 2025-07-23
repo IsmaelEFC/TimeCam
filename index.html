@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
-  <title>CapturaSync</title>
+  <title>TimeCam</title>
 </head>
 <body>
   <nav id="tab-menu">
@@ -15,10 +15,14 @@
 
   <section id="captura">
     <div id="split-view">
-      <video id="camera" autoplay playsinline></video>
-      <iframe src="https://www.horaoficial.cl" id="iframe"></iframe>
+      <div id="camera-wrapper">
+        <video id="camera" autoplay playsinline></video>
+        <button id="capture-btn">📸</button>
+      </div>
+      <div id="iframe-wrapper">
+        <iframe src="https://www.horaoficial.cl" id="iframe"></iframe>
+      </div>
     </div>
-    <button id="capture-btn">📸 Capturar</button>
   </section>
 
   <section id="historial" style="display:none;">
@@ -26,6 +30,7 @@
     <div id="history-grid"></div>
   </section>
 
+  <div id="notification-container" class="notification-container"></div>
   <script src="captura-db.js"></script>
   <script src="app.js"></script>
 </body>
