@@ -10,23 +10,40 @@
 </head>
 
 <body>
-    <nav id="tab-menu">
-        <button class="tab active" onclick="mostrarSeccion('captura')">📷 Captura</button>
-        <button class="tab" onclick="mostrarSeccion('historial')">🗂️ Historial</button>
-    </nav>
+    <div class="segment-control" id="tab-selector" role="tablist" aria-label="Navegación principal">
+        <button class="tab active" 
+                id="tab-captura"
+                role="tab" 
+                aria-selected="true" 
+                aria-controls="captura"
+                onclick="mostrarSeccion('captura')">
+            📷 Capturar
+        </button>
+        <button class="tab" 
+                id="tab-historial"
+                role="tab" 
+                aria-selected="false" 
+                aria-controls="historial"
+                onclick="mostrarSeccion('historial')">
+            🗂️ Historial
+        </button>
+        <div class="tab-indicator" id="tab-indicator" aria-hidden="true"></div>
+    </div>
 
-    <section id="captura">
-        <div id="camera-wrapper">
-            <video id="camera" autoplay playsinline></video>
-            <button id="capture-btn">Capturar</button>
-        </div>
-        <canvas id="canvas-preview" style="display:none;"></canvas>
-    </section>
+    <div id="contenedor-vistas">
+      <section id="captura" class="vista visible">
+          <div id="camera-wrapper">
+              <video id="camera" autoplay playsinline></video>
+              <button id="capture-btn">Capturar</button>
+          </div>
+          <canvas id="canvas-preview" style="display:none;"></canvas>
+      </section>
 
-    <section id="historial" style="display:none;">
-        <h2>Historial de capturas</h2>
-        <div id="history-grid"></div>
-    </section>
+      <section id="historial" class="vista">
+          <h2>Historial de capturas</h2>
+          <div id="history-grid"></div>
+      </section>
+    </div>
 
     <div id="status-toast" role="status" aria-live="polite"></div>
 
